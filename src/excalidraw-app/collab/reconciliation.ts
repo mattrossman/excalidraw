@@ -87,63 +87,48 @@ export const reconcileElements = (
     const parent =
       remoteElement.parent || remoteElements[remoteElementIdx - 1]?.id || "^";
 
-    if (parent != null) {
-      delete remoteElement.parent;
+    delete remoteElement.parent;
 
-      if (parent === "^") {
-        offset++;
-        if (cursor === 0) {
-          reconciledElements.unshift(remoteElement);
-          localElementsData[remoteElement.id] = [
-            remoteElement,
-            cursor - offset,
-          ];
-        } else {
-          reconciledElements.splice(cursor + 1, 0, remoteElement);
-          localElementsData[remoteElement.id] = [
-            remoteElement,
-            cursor + 1 - offset,
-          ];
-          cursor++;
-        }
+    if (parent === "^") {
+      offset++;
+      if (cursor === 0) {
+        reconciledElements.unshift(remoteElement);
+        localElementsData[remoteElement.id] = [remoteElement, cursor - offset];
       } else {
-        let idx = localElementsData[parent]
-          ? localElementsData[parent]![1]
-          : null;
-        if (idx != null) {
-          idx += offset;
-        }
-        if (idx != null && idx >= cursor) {
-          reconciledElements.splice(idx + 1, 0, remoteElement);
-          offset++;
-          localElementsData[remoteElement.id] = [
-            remoteElement,
-            idx + 1 - offset,
-          ];
-          cursor = idx + 1;
-        } else if (idx != null) {
-          reconciledElements.splice(cursor + 1, 0, remoteElement);
-          offset++;
-          localElementsData[remoteElement.id] = [
-            remoteElement,
-            cursor + 1 - offset,
-          ];
-          cursor++;
-        } else {
-          reconciledElements.push(remoteElement);
-          localElementsData[remoteElement.id] = [
-            remoteElement,
-            reconciledElements.length - 1 - offset,
-          ];
-        }
+        reconciledElements.splice(cursor + 1, 0, remoteElement);
+        localElementsData[remoteElement.id] = [
+          remoteElement,
+          cursor + 1 - offset,
+        ];
+        cursor++;
       }
-      // no parent z-index information → push at the end
     } else {
-      reconciledElements.push(remoteElement);
-      localElementsData[remoteElement.id] = [
-        remoteElement,
-        reconciledElements.length - 1 - offset,
-      ];
+      let idx = localElementsData[parent]
+        ? localElementsData[parent]![1]
+        : null;
+      if (idx != null) {
+        idx += offset;
+      }
+      if (idx != null && idx >= cursor) {
+        reconciledElements.splice(idx + 1, 0, remoteElement);
+        offset++;
+        localElementsData[remoteElement.id] = [remoteElement, idx + 1 - offset];
+        cursor = idx + 1;
+      } else if (idx != null) {
+        reconciledElements.splice(cursor + 1, 0, remoteElement);
+        offset++;
+        localElementsData[remoteElement.id] = [
+          remoteElement,
+          cursor + 1 - offset,
+        ];
+        cursor++;
+      } else {
+        reconciledElements.push(remoteElement);
+        localElementsData[remoteElement.id] = [
+          remoteElement,
+          reconciledElements.length - 1 - offset,
+        ];
+      }
     }
   }
 
